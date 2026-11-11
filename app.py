@@ -1,4 +1,4 @@
-"""API Flask de EduTrack: sirve el modelo de clasificación de subregistro NEE.
+"""API Flask de EduTrack: sirve el modelo de presencia de casos foco (NEE).
 
 Endpoints:
 - ``GET  /``        información del servicio y del modelo.

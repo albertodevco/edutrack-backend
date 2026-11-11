@@ -12,8 +12,8 @@ from app import app
 from model_service import departamentos, predecir
 from schemas import PrediccionRequest
 
-# Valores de referencia calculados directamente desde los .pkl del repositorio
-# con scikit-learn 1.6.1 (sin escalar). Tolerancia exigida: 1e-9.
+# Valores de referencia calculados con scikit-learn 1.6.1 sobre el modelo
+# reentrenado (max_depth=24, min_samples_leaf=40), sin escalar. Tolerancia 1e-9.
 CASOS = [
     pytest.param(
         {
@@ -27,7 +27,7 @@ CASOS = [
             "etnoeducativa": False,
             "departamento": "Amazonas",
         },
-        0.11713286713286714,
+        0.0759493670886076,
         0,
         id="rural-pequena",
     ),
@@ -43,7 +43,7 @@ CASOS = [
             "etnoeducativa": False,
             "departamento": "Antioquia",
         },
-        0.7784891165172856,
+        0.9672131147540983,
         1,
         id="urbana-grande",
     ),
@@ -59,8 +59,8 @@ CASOS = [
             "etnoeducativa": False,
             "departamento": "Chocó",
         },
-        0.43349753694581283,
-        0,
+        0.6268656716417911,
+        1,
         id="rural-intermedia",
     ),
 ]
@@ -151,10 +151,43 @@ def test_salud_expone_metadatos(cliente):
     assert datos["n_features"] == 41
     assert datos["clases"] == [0, 1]
     assert datos["escalado_en_inferencia"] is False
+    assert datos["hojas"] >= 300
+    assert datos["profundidad"] >= 8
 
 
 def test_el_scaler_no_se_aplica(cliente):
-    """Si se aplicara el scaler, la probabilidad quedaría plana en 0.3125."""
+    """Escalar el vector daría una probabilidad distinta y sin sentido."""
+    import joblib
+
+    from model_service import SCALER_PATH, cargar_artefactos, construir_fila
+
     payload = dict(CASOS[0].values[0])
     datos = cliente.post("/predecir", json=payload).get_json()
-    assert datos["probabilidad"] != pytest.approx(0.3125, abs=1e-6)
+
+    modelo, _ = cargar_artefactos()
+    fila, _ = construir_fila(PrediccionRequest.model_validate(payload))
+    escalador = joblib.load(SCALER_PATH)
+    probabilidad_escalada = float(modelo.predict_proba(escalador.transform(fila))[0, 1])
+
+    assert datos["probabilidad"] != pytest.approx(probabilidad_escalada, abs=1e-9)
+
+
+def test_la_probabilidad_varia_con_la_matricula(cliente):
+    """Regresión: el modelo anterior devolvía el mismo valor en casi todo el rango."""
+    base = dict(CASOS[1].values[0])
+    probabilidades = []
+    for matricula in (100, 260, 400, 700, 1200):
+        payload = {**base, "matricula": matricula}
+        probabilidades.append(
+            cliente.post("/predecir", json=payload).get_json()["probabilidad"]
+        )
+
+    assert len(set(probabilidades)) >= 4
+
+
+def test_el_modelo_tiene_resolucion_suficiente():
+    """El árbol reentrenado no debe volver a un modelo de pocas hojas."""
+    from model_service import cargar_artefactos
+
+    modelo, _ = cargar_artefactos()
+    assert modelo.get_n_leaves() >= 300

@@ -1,4 +1,4 @@
-# Publicar EduTrack en GitHub
+﻿# Publicar EduTrack en GitHub
 
 EduTrack se publica en **dos repositorios independientes**, que ya existen y ya
 tienen su remoto configurado:
@@ -28,9 +28,10 @@ runtime.txt                python-3.12.7
 .python-version            3.12.7
 .env.example               variables de entorno documentadas
 .gitattributes             normalización de saltos de línea
-.github/workflows/tests.yml  CI: 50 pruebas en cada push
-tests/test_api.py          50 pruebas de contrato y regresión
+.github/workflows/tests.yml  CI: 52 pruebas en cada push
+tests/test_api.py          52 pruebas de contrato y regresión
 scripts/verificar_modelo.py  verificación reproducible
+scripts/reentrenar_modelo.py reentrenamiento del árbol y rejilla
 docs/DIAGNOSTICO.md        código anterior vs. modelo real
 docs/PUBLICAR_EN_GITHUB.md esta guía
 ```
@@ -113,7 +114,7 @@ git status          # debe decir "nothing to commit, working tree clean"
 ```
 
 En GitHub, pestaña **Actions** del backend: el workflow *Pruebas del backend*
-debe pasar en verde (50 pruebas + verificación del modelo).
+debe pasar en verde (52 pruebas + verificación del modelo).
 
 ---
 

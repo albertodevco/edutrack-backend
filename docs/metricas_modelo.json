@@ -1,0 +1,312 @@
+{
+  "hiperparametros": {
+    "max_depth": 24,
+    "min_samples_leaf": 40,
+    "random_state": 42,
+    "criterion": "gini"
+  },
+  "dataset": {
+    "sedes": 42299,
+    "features": 41,
+    "entrenamiento": 33839,
+    "prueba": 8460,
+    "proporcion_clase_1": 0.17745100356982435
+  },
+  "metricas_prueba": {
+    "exactitud": 0.8710401891252955,
+    "precision": 0.6725589225589226,
+    "recall": 0.5323117921385743,
+    "f1": 0.5942729639271105,
+    "auc": 0.8744979038259592,
+    "hojas": 515,
+    "profundidad": 24,
+    "probabilidades_distintas": 339,
+    "probabilidad_min": 0.0,
+    "probabilidad_max": 1.0
+  },
+  "importancias": [
+    {
+      "variable": "MATRICULA",
+      "importancia": 0.7203184206774882
+    },
+    {
+      "variable": "ZONA_RURAL",
+      "importancia": 0.09795483321340633
+    },
+    {
+      "variable": "N_DOCENTES",
+      "importancia": 0.05320740582061076
+    },
+    {
+      "variable": "EST_POR_DOCENTE",
+      "importancia": 0.027588156983283395
+    },
+    {
+      "variable": "DEP_Antioquia",
+      "importancia": 0.018677054402430233
+    },
+    {
+      "variable": "N_ORIENTADORES",
+      "importancia": 0.014021676833973162
+    },
+    {
+      "variable": "ETNOEDUC_SI",
+      "importancia": 0.009867322609466146
+    },
+    {
+      "variable": "DEP_Bolívar",
+      "importancia": 0.008226865096386309
+    },
+    {
+      "variable": "DEP_Risaralda",
+      "importancia": 0.007744855386748156
+    },
+    {
+      "variable": "DEP_Valle del Cauca",
+      "importancia": 0.006804225109540479
+    },
+    {
+      "variable": "DEP_Caldas",
+      "importancia": 0.00636069262208943
+    },
+    {
+      "variable": "DEP_Magdalena",
+      "importancia": 0.005870611429231961
+    },
+    {
+      "variable": "N_NIVELES",
+      "importancia": 0.005423286050844888
+    },
+    {
+      "variable": "DEP_Santander",
+      "importancia": 0.0031136826069613167
+    },
+    {
+      "variable": "DEP_Chocó",
+      "importancia": 0.0030688309312242477
+    },
+    {
+      "variable": "DEP_Nariño",
+      "importancia": 0.0020067940015072293
+    },
+    {
+      "variable": "DEP_Cundinamarca",
+      "importancia": 0.001713263688870412
+    },
+    {
+      "variable": "DEP_Cesar",
+      "importancia": 0.001577446879895538
+    },
+    {
+      "variable": "N_JORNADAS",
+      "importancia": 0.0014056258366993129
+    },
+    {
+      "variable": "DEP_Huila",
+      "importancia": 0.0010215213264043474
+    },
+    {
+      "variable": "DEP_Meta",
+      "importancia": 0.0007487590484400793
+    },
+    {
+      "variable": "DEP_La Guajira",
+      "importancia": 0.000729193739561426
+    },
+    {
+      "variable": "DEP_Quindío",
+      "importancia": 0.0006072379360245038
+    },
+    {
+      "variable": "DEP_Boyacá",
+      "importancia": 0.0005323745290497106
+    },
+    {
+      "variable": "DEP_Atlántico",
+      "importancia": 0.000508396571190968
+    },
+    {
+      "variable": "DEP_Cauca",
+      "importancia": 0.00027635080452022433
+    },
+    {
+      "variable": "DEP_Tolima",
+      "importancia": 0.0002629629745303086
+    },
+    {
+      "variable": "DEP_Caquetá",
+      "importancia": 0.00011240839339448258
+    },
+    {
+      "variable": "BILINGUE_SI",
+      "importancia": 9.612667773693312e-05
+    },
+    {
+      "variable": "DEP_Putumayo",
+      "importancia": 4.726627297059763e-05
+    },
+    {
+      "variable": "DEP_Sucre",
+      "importancia": 3.6257075114611697e-05
+    },
+    {
+      "variable": "DEP_Córdoba",
+      "importancia": 2.7899534880922386e-05
+    },
+    {
+      "variable": "DEP_Norte de Santander",
+      "importancia": 2.136349687061496e-05
+    },
+    {
+      "variable": "DEP_Arauca",
+      "importancia": 1.1479189663248128e-05
+    },
+    {
+      "variable": "DEP_Casanare",
+      "importancia": 9.352248989395023e-06
+    }
+  ],
+  "sensibilidad": {
+    "base": 0.586207,
+    "matriculas_probadas": [
+      20,
+      40,
+      60,
+      80,
+      100,
+      120,
+      150,
+      180,
+      200,
+      220,
+      250,
+      280,
+      300,
+      350,
+      400,
+      450,
+      500,
+      550,
+      600,
+      650,
+      700,
+      800,
+      900,
+      1000,
+      1200
+    ],
+    "probabilidades_por_matricula": [
+      0.16129,
+      0.16129,
+      0.517857,
+      0.517857,
+      0.517857,
+      0.517857,
+      0.517857,
+      0.54717,
+      0.54717,
+      0.54717,
+      0.54717,
+      0.702128,
+      0.603175,
+      0.521739,
+      0.586207,
+      0.629032,
+      0.597403,
+      0.644068,
+      0.644068,
+      0.42,
+      0.42,
+      0.42,
+      0.42,
+      0.42,
+      0.42
+    ],
+    "matriculas_con_valor_distinto": 11,
+    "docentes_probados": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+    ],
+    "probabilidades_por_docentes": [
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.333333,
+      0.513158,
+      0.513158,
+      0.513158,
+      0.629032,
+      0.586207,
+      0.586207,
+      0.586207,
+      0.586207,
+      0.779661,
+      0.779661,
+      0.779661,
+      0.779661,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534,
+      0.657534
+    ],
+    "docentes_con_valor_distinto": 6
+  }
+}

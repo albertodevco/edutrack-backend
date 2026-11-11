@@ -1,4 +1,4 @@
-# EduTrack · Backend
+﻿# EduTrack · Backend
 
 API Flask que sirve el modelo `DecisionTreeClassifier` de EduTrack. Recibe los
 parámetros estructurales de una sede, construye el vector de **41 columnas** en
@@ -57,7 +57,7 @@ Respuesta `200`:
 ```json
 {
   "clase": 1,
-  "probabilidad": 0.7784891165172856,
+  "probabilidad": 0.9672131147540983,
   "etiqueta_clase": "Presencia estimada de casos foco (TEA, trastornos del aprendizaje o condiciones psicosociales) en la sede",
   "parametros_usados": {
     "matricula": 950,
@@ -97,19 +97,41 @@ silenciosos.
 
 ## Decisiones sobre el modelo (importante)
 
-1. **El scaler NO se aplica en inferencia.** Los umbrales del árbol de
-   `MATRICULA` son 9.5, 21.5, 55.5, 159.5, 249.5 y 948, es decir, unidades
-   reales. Aplicar `StandardScaler` deja la probabilidad plana en `0.3125` para
-   casi cualquier sede. `scaler_edutrack.pkl` se conserva solo como referencia.
+1. **El scaler NO se aplica en inferencia.** El árbol se entrenó con valores en
+   unidades reales (matrícula en estudiantes, sin estandarizar). Aplicar
+   `StandardScaler` produce probabilidades incoherentes: una sede urbana de 950
+   estudiantes daría 13.9 % en vez de 96.7 %. `scaler_edutrack.pkl` se conserva
+   solo como referencia.
 2. **Amazonas es la categoría base**: no tiene dummy y todas las `DEP_*` quedan
    en 0.
 3. **El orden de las 41 columnas** se toma siempre de `columnas_edutrack.pkl`.
 4. **`EST_POR_DOCENTE`** se calcula en el backend como `MATRICULA / N_DOCENTES`.
-5. **Clase 1**: el modelo estima la presencia de casos foco. La evidencia
-   disponible (la probabilidad crece con la matrícula y con la presencia de
-   orientadores) apunta a “la sede registra al menos un caso foco”, pero debe
-   confirmarse contra el notebook de entrenamiento antes de presentarlo como
-   diagnóstico.
+5. **Clase 1**: la sede reporta al menos un caso foco
+   (`REPORTA_FOCO = N_FOCO > 0`), confirmado en el notebook de entrenamiento.
+6. **Resolución.** El modelo original (`max_depth=6`, `min_samples_leaf=30`)
+   tenía 51 hojas y solo 50 probabilidades distintas, así que muchas sedes
+   obtenían el mismo valor. Se reentrenó con `max_depth=24` y
+   `min_samples_leaf=40`: **515 hojas**, **339 probabilidades distintas** y
+   **100 umbrales de matrícula**. Métricas de prueba: exactitud `0.8710`,
+   F1 `0.5943`, AUC `0.8745` (antes `0.8674` / `0.5160` / `0.8736`).
+
+## Reentrenar el modelo
+
+El script reproduce las celdas 2–14 del notebook y exporta los artefactos:
+
+```bash
+# Explorar profundidad y hojas mínimas (no toca el backend)
+python scripts/reentrenar_modelo.py --zip "BDATOS-EDUC-2024.zip"
+
+# Exportar la configuración elegida
+python scripts/reentrenar_modelo.py --zip "BDATOS-EDUC-2024.zip" \
+  --exportar --solo-exportar --max-depth 24 --min-samples-leaf 40
+```
+
+Debe ejecutarse con **scikit-learn 1.6.1** (la versión de `requirements.txt`) para
+que el `.pkl` sea compatible con Render. El script comprueba que el dataset
+tenga 42 299 sedes y 41 columnas, y avisa si las columnas no coinciden con las
+del modelo anterior.
 
 ## Pruebas
 
@@ -171,7 +193,7 @@ git push origin main
 Guía completa (autenticación, Render, errores frecuentes y seguridad):
 **[docs/PUBLICAR_EN_GITHUB.md](docs/PUBLICAR_EN_GITHUB.md)**.
 
-Cada push a `main` ejecuta las 50 pruebas con GitHub Actions
+Cada push a `main` ejecuta las 52 pruebas con GitHub Actions
 (`.github/workflows/tests.yml`).
 
 ## Documentación

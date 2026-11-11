@@ -93,6 +93,34 @@ def main() -> int:
         )
 
     print()
+    print("Resolución del árbol:")
+    arbol = modelo.tree_
+    indice_matricula = columnas.index("MATRICULA")
+    umbrales = sorted(
+        {
+            round(float(umbral), 1)
+            for umbral, feature in zip(arbol.threshold, arbol.feature)
+            if feature == indice_matricula
+        }
+    )
+    print(
+        f"  hojas={modelo.get_n_leaves()} | umbrales de MATRICULA={len(umbrales)} "
+        f"({umbrales[0]} a {umbrales[-1]})"
+    )
+
+    print()
+    print("Sensibilidad (misma sede, distinta matrícula):")
+    base = dict(CASOS[1][1])
+    for matricula in (100, 260, 400, 700, 1200):
+        resultado = predecir(
+            PrediccionRequest.model_validate({**base, "matricula": matricula})
+        )
+        print(
+            f"  matrícula {matricula:>5} -> {resultado['probabilidad']:.6f} "
+            f"(clase {resultado['clase']})"
+        )
+
+    print()
     print("Comprobación del escalado (no debe usarse en inferencia):")
     escalador = joblib.load(SCALER_PATH)
     for nombre, payload in CASOS[:2]:
@@ -104,9 +132,9 @@ def main() -> int:
             f"escalada={probabilidad_escalada:.6f}"
         )
     print(
-        "\nEl árbol usa umbrales en unidades reales (matrícula 9.5, 55.5, 159.5, "
-        "249.5, 948). Escalar deja la probabilidad casi constante: por eso el "
-        "backend NO aplica el scaler."
+        "\nEl árbol usa umbrales en unidades reales de matrícula; escalar el "
+        "vector produce probabilidades sin sentido. Por eso el backend NO "
+        "aplica el scaler."
     )
     assert np.isfinite(modelo.predict_proba(fila)).all()
     return 0

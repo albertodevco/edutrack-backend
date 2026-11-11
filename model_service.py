@@ -2,14 +2,16 @@
 
 Decisiones importantes (verificadas contra los .pkl del repositorio):
 
-1. El ``DecisionTreeClassifier`` fue entrenado con valores en unidades reales.
-   Sus umbrales de MATRICULA son 9.5, 21.5, 55.5, 159.5, 249.5 y 948, que solo
-   tienen sentido sin escalar. Aplicar ``scaler_edutrack.pkl`` deja la
-   probabilidad plana en 0.3125 para cualquier sede de tamaño normal, por lo
-   que el scaler NO se usa en inferencia. Se conserva como referencia del
-   entrenamiento.
+1. El ``DecisionTreeClassifier`` fue entrenado con valores en unidades reales
+   (matrícula en estudiantes, sin estandarizar). Sus umbrales solo tienen
+   sentido sin escalar: aplicar ``scaler_edutrack.pkl`` produce probabilidades
+   incoherentes (una sede de 950 estudiantes daría 13.9 %). Por eso el scaler
+   NO se usa en inferencia; se conserva como referencia del entrenamiento.
 2. El orden de las 41 columnas sale siempre de ``columnas_edutrack.pkl``.
 3. Amazonas es la categoría base: no tiene dummy y todas las DEP_* quedan en 0.
+4. El modelo se reentrenó con ``max_depth=24`` y ``min_samples_leaf=40``
+   (515 hojas y 339 probabilidades distintas, frente a 51 hojas y 50 valores
+   del modelo original) para que la respuesta no se repita entre sedes.
 """
 
 from __future__ import annotations
@@ -29,10 +31,9 @@ MODEL_PATH = BASE_DIR / "modelo_edutrack.pkl"
 COLUMNS_PATH = BASE_DIR / "columnas_edutrack.pkl"
 SCALER_PATH = BASE_DIR / "scaler_edutrack.pkl"  # referencia, no se usa
 
-#: Significado asumido de la clase 1. La evidencia disponible (la probabilidad
-#: crece con la matrícula y con la presencia de orientadores) apunta a
-#: "la sede registra al menos un caso foco". Debe confirmarse contra el
-#: notebook de entrenamiento antes de usar el resultado como diagnóstico.
+#: Significado de la clase 1, confirmado en el notebook de entrenamiento:
+#: ``REPORTA_FOCO = (N_FOCO > 0)``, es decir, la sede reporta al menos un caso
+#: foco (TEA, trastorno del aprendizaje o condición psicosocial).
 SIGNIFICADO_CLASE_1 = (
     "Presencia estimada de casos foco (TEA, trastornos del aprendizaje o "
     "condiciones psicosociales) en la sede"
@@ -170,6 +171,8 @@ def informacion_modelo() -> dict[str, Any]:
         "modelo": type(modelo).__name__,
         "n_features": len(columnas),
         "clases": [int(c) for c in modelo.classes_],
+        "hojas": int(modelo.get_n_leaves()),
+        "profundidad": int(modelo.get_depth()),
         "significado_clase_1": SIGNIFICADO_CLASE_1,
         "escalado_en_inferencia": False,
         "nota_escalado": (
