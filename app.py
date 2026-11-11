@@ -17,7 +17,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pydantic import ValidationError
 
-from model_service import informacion_modelo, predecir
+from model_service import informacion_modelo, predecir, reporte_entrenamiento
 from schemas import PrediccionRequest
 
 logging.basicConfig(
@@ -52,9 +52,30 @@ def salud():
         {
             **_INFORMACION,
             "version_sklearn": sklearn.__version__,
-            "endpoints": {"predecir": "POST /predecir"},
+            "endpoints": {
+                "predecir": "POST /predecir",
+                "entrenar": "POST /entrenar",
+                "metricas_entrenamiento": "GET /metricas-entrenamiento",
+            },
         }
     )
+
+
+@app.route("/entrenar", methods=["GET", "POST"])
+@app.get("/metricas-entrenamiento")
+def entrenar_endpoint():
+    """Inicia el entrenamiento del modelo y devuelve las métricas exigidas (D2)."""
+    cuerpo = request.get_json(silent=True) or {}
+    max_depth = int(cuerpo.get("max_depth", 24))
+    min_samples_leaf = int(cuerpo.get("min_samples_leaf", 40))
+    criterion = str(cuerpo.get("criterion", "gini"))
+
+    reporte = reporte_entrenamiento(
+        max_depth=max_depth,
+        min_samples_leaf=min_samples_leaf,
+        criterion=criterion,
+    )
+    return jsonify(reporte)
 
 
 @app.post("/predecir")

@@ -191,3 +191,34 @@ def test_el_modelo_tiene_resolucion_suficiente():
 
     modelo, _ = cargar_artefactos()
     assert modelo.get_n_leaves() >= 300
+
+
+def test_entrenar_devuelve_metricas_completas(cliente):
+    """Requisito D2: El endpoint /entrenar debe devolver la matriz de confusión y las métricas exigidas."""
+    respuesta = cliente.post("/entrenar", json={"max_depth": 24, "min_samples_leaf": 40})
+    assert respuesta.status_code == 200
+    datos = respuesta.get_json()
+
+    assert datos["estado"] == "completado"
+    assert "matriz_confusion" in datos
+    assert "metricas_globales" in datos
+    assert "metricas_por_clase" in datos
+    assert "regresion_referencia" in datos
+    assert "interpretacion" in datos
+
+    # Matriz de confusión
+    cm = datos["matriz_confusion"]
+    assert cm["verdaderos_negativos"] > 0
+    assert cm["verdaderos_positivos"] > 0
+
+    # Métricas por clase (Clase 0 y Clase 1)
+    for c in ("clase_0", "clase_1"):
+        m = datos["metricas_por_clase"][c]
+        assert "precision" in m
+        assert "recall" in m
+        assert "f1_score" in m
+        assert "specificity" in m
+        assert 0 <= m["precision"] <= 1
+        assert 0 <= m["recall"] <= 1
+        assert 0 <= m["f1_score"] <= 1
+        assert 0 <= m["specificity"] <= 1
