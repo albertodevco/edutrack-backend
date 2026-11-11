@@ -37,3 +37,6 @@ venv.bak/
 .idea/
 *.swp
 *.swo
+
+# Pruebas
+.pytest_cache/

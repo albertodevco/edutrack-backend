@@ -1,0 +1,10 @@
+# Normaliza finales de línea en el repositorio (LF) y preserva binarios.
+* text=auto eol=lf
+
+*.pkl   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.svg   text
+*.xlsx  binary
