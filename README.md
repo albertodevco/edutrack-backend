@@ -6,11 +6,7 @@ el orden exacto del entrenamiento y devuelve la clase y la probabilidad.
 
 Forma parte de un sistema de dos repositorios:
 
-```text
-edutrack-frontend (Supabase Auth + dashboard)  ──POST /predecir──►  edutrack-backend (Render)
-            │                                                              │
-            └────────────── tabla analisis_sede (RLS) ◄────────────────────┘
-```
+
 
 | Repositorio | Contenido |
 |---|---|
@@ -22,62 +18,6 @@ edutrack-frontend (Supabase Auth + dashboard)  ──POST /predecir──►  ed
 - Python 3.12 (ver `.python-version` / `runtime.txt`)
 - Dependencias de `requirements.txt` (scikit-learn **1.6.1**, la versión con la
   que se serializó el modelo)
-
-```bash
-python -m venv venv
-venv\Scripts\activate          # Windows
-pip install -r requirements.txt
-python app.py                  # http://localhost:5000
-```
-
-## Endpoints
-
-### `GET /` · `GET /salud`
-
-Metadatos del servicio y del modelo (features, clases, versión de sklearn).
-
-### `POST /predecir`
-
-```json
-{
-  "matricula": 950,
-  "docentes": 34,
-  "orientadores": 2,
-  "niveles": 4,
-  "jornadas": 2,
-  "zona": "urbana",
-  "bilingue": false,
-  "etnoeducativa": false,
-  "departamento": "Antioquia"
-}
-```
-
-Respuesta `200`:
-
-```json
-{
-  "clase": 1,
-  "probabilidad": 0.9672131147540983,
-  "etiqueta_clase": "Presencia estimada de casos foco (TEA, trastornos del aprendizaje o condiciones psicosociales) en la sede",
-  "parametros_usados": {
-    "matricula": 950,
-    "docentes": 34,
-    "orientadores": 2,
-    "est_por_docente": 27.941176470588236,
-    "niveles": 4,
-    "jornadas": 2,
-    "zona": "urbana",
-    "zona_rural": 0,
-    "bilingue": false,
-    "etnoeducativa": false,
-    "departamento": "Antioquia",
-    "columna_departamento": "DEP_Antioquia"
-  }
-}
-```
-
-Errores de validación: `422` con `{"detail": [...]}` (formato Pydantic).
-Error interno: `500` sin filtrar trazas al cliente.
 
 ## Reglas de validación
 
@@ -95,7 +35,7 @@ Error interno: `500` sin filtrar trazas al cliente.
 Los campos extra se rechazan (`extra="forbid"`). No hay valores por defecto
 silenciosos.
 
-## Decisiones sobre el modelo (importante)
+## Decisiones sobre el modelo
 
 1. **El scaler NO se aplica en inferencia.** El árbol se entrenó con valores en
    unidades reales (matrícula en estudiantes, sin estandarizar). Aplicar
@@ -135,18 +75,12 @@ del modelo anterior.
 
 ## Pruebas
 
-```bash
-pip install -r requirements-dev.txt
-pytest -q
-```
+
 
 Las pruebas comparan la API contra el modelo local con tolerancia `1e-9`,
 verifican los 33 departamentos, los rangos y que el scaler no se aplique.
 También hay una verificación reproducible para la sustentación:
 
-```bash
-python scripts/verificar_modelo.py
-```
 
 ## Variables de entorno
 
@@ -156,48 +90,3 @@ python scripts/verificar_modelo.py
 | `ALLOWED_ORIGINS` | `*` | Orígenes CORS separados por comas |
 | `LOG_LEVEL` | `INFO` | Nivel de logging |
 
-## Despliegue en Render
-
-- Build: `pip install -r requirements.txt`
-- Start: `gunicorn app:app`
-- Python: `3.12.7` (`.python-version` / `runtime.txt`)
-- Mantener `scikit-learn==1.6.1` para evitar incompatibilidades al cargar el
-  `.pkl`.
-
-Verificación rápida:
-
-```bash
-curl -s https://TU-SERVICIO.onrender.com/salud
-
-curl -s -X POST https://TU-SERVICIO.onrender.com/predecir \
-  -H "Content-Type: application/json" \
-  -d '{"matricula":950,"docentes":34,"orientadores":2,"niveles":4,"jornadas":2,"zona":"urbana","bilingue":false,"etnoeducativa":false,"departamento":"Antioquia"}'
-```
-
-> El frontend nuevo envía `bilingue`/`etnoeducativa` como booleanos y
-> `departamento`. **Despliega este backend antes de publicar el frontend**; la
-> versión anterior de la API no conoce esos campos.
-
-## Subir a GitHub
-
-El repositorio ya está inicializado y con los cambios preparados. Solo falta
-hacer commit y push:
-
-```powershell
-cd "C:\Users\Admin\Documents\Inteligencia Artificial\edutrack-backend"
-git add -A
-git commit -m "feat: validación Pydantic, vector de 41 columnas y modelo sin escalado"
-git push origin main
-```
-
-Guía completa (autenticación, Render, errores frecuentes y seguridad):
-**[docs/PUBLICAR_EN_GITHUB.md](docs/PUBLICAR_EN_GITHUB.md)**.
-
-Cada push a `main` ejecuta las 52 pruebas con GitHub Actions
-(`.github/workflows/tests.yml`).
-
-## Documentación
-
-- `docs/DIAGNOSTICO.md` — comparación del código anterior contra los parámetros
-  reales del modelo y la corrección del escalado.
-- `docs/PUBLICAR_EN_GITHUB.md` — publicación y despliegue paso a paso.
