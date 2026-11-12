@@ -55,23 +55,7 @@ silenciosos.
    **100 umbrales de matrícula**. Métricas de prueba: exactitud `0.8710`,
    F1 `0.5943`, AUC `0.8745` (antes `0.8674` / `0.5160` / `0.8736`).
 
-## Reentrenar el modelo
 
-El script reproduce las celdas 2–14 del notebook y exporta los artefactos:
-
-```bash
-# Explorar profundidad y hojas mínimas (no toca el backend)
-python scripts/reentrenar_modelo.py --zip "BDATOS-EDUC-2024.zip"
-
-# Exportar la configuración elegida
-python scripts/reentrenar_modelo.py --zip "BDATOS-EDUC-2024.zip" \
-  --exportar --solo-exportar --max-depth 24 --min-samples-leaf 40
-```
-
-Debe ejecutarse con **scikit-learn 1.6.1** (la versión de `requirements.txt`) para
-que el `.pkl` sea compatible con Render. El script comprueba que el dataset
-tenga 42 299 sedes y 41 columnas, y avisa si las columnas no coinciden con las
-del modelo anterior.
 
 ## Pruebas
 
